@@ -26,9 +26,9 @@ public class MyHashTable extends HashTable {
         tempArray =  storageArray.clone();
         storageArray = new String[newSize];
 
-        for (int i = 0; i < tempArray.length; i++){ //for each value in our original hash table < not <= temp array since length not zero indexed, but the array is
-            if (tempArray[i] !=null && tempArray[i] != getPlaceholder()){
-                if(add(tempArray[i]) == true){
+        for (String this_value : tempArray){ //for each value in our original hash table < not <= temp array since length not zero indexed, but the array is
+            if (this_value !=null && this_value != getPlaceholder()){
+                if(add(this_value)){
                     numItems --;// we need to take away one from the number of items because we add one to this in the add() method. We cannot just reset the number of values because then when we add the values we may end up with a load factor < 0.2
                 }
             }
@@ -44,7 +44,7 @@ public class MyHashTable extends HashTable {
     public boolean add(String name){
         boolean added = false;
         int hash_val = hashFunction(name);
-        if (search(name) == true){ //Cannot add a value to the hash table if it is already there
+        if (search(name)){ //Cannot add a value to the hash table if it is already there
             return false;
         }
         if (storageArray[hash_val] == null){ //if location given by hash function is empty then we can add the name here
@@ -61,9 +61,9 @@ public class MyHashTable extends HashTable {
                 }
 
             }
-            if (added == false){
+            if (!added){
                 for(int i = 0; i < hash_val; i++){ //going through the list from the start until we find an empty location of have checked all values
-                    if (storageArray[i] ==null || storageArray[i] == getPlaceholder()){ // we can overwrite placeholders, they're just here, so we can delete and don't have to move values
+                    if (storageArray[i] ==null || storageArray[i].equals(getPlaceholder())){ // we can overwrite placeholders, they're just here, so we can delete and don't have to move values
                         storageArray[i] = name;
                         added = true;
                         break;
@@ -74,7 +74,7 @@ public class MyHashTable extends HashTable {
 
         }
 
-        if (added == true) {
+        if (added) {
             numItems ++;
             update_load();
             return true;
@@ -114,13 +114,13 @@ public class MyHashTable extends HashTable {
     public boolean remove(String name){
         boolean removed = false;
         int hash_val = hashFunction(name);
-        if (storageArray[hash_val] == name){
+        if (storageArray[hash_val].equals(name)){
             storageArray[hash_val] = getPlaceholder();
             removed = true;
         }
         else{
             for(int i = hash_val +1; i < storageArray.length; i++){ //for items in the table after the hash value to the end. < not <= Storage array since  length not zero indexed, but the array is
-                if (storageArray[i] ==name){
+                if (storageArray[i].equals(name)){
                     storageArray[i] = getPlaceholder();
                     removed = true;
                     break;
@@ -129,9 +129,9 @@ public class MyHashTable extends HashTable {
                     return false;
                 }
             }
-            if (removed  == false){
+            if (!removed){
                 for(int i = 0; i < hash_val; i++){ //for items from the start of the table to the hash value.
-                    if (storageArray[i] ==name){
+                    if (storageArray[i].equals(name)){
                         storageArray[i] = getPlaceholder();
                         removed = true;
                         break;
@@ -144,7 +144,7 @@ public class MyHashTable extends HashTable {
             }
 
         }
-        if (removed == true) {
+        if (removed) {
             numItems --;
             update_load();
             return true;
@@ -156,31 +156,36 @@ public class MyHashTable extends HashTable {
 
     /**
      * Returns whether the value exists the hash table
-     * @param name
+     * @param name the name to search for in the hash table
      * @return true if found, false otherwise
      */
     public boolean search(String name){
         int hash_val = hashFunction(name);
-        if (storageArray[hash_val] == name){
+        if (storageArray[hash_val] == null){ // we can return false if this value is empty, no point checking the hash table
+            return false;
+        }
+        if (storageArray[hash_val].equals(name)){
             return true;
         }
         else{
             for(int i = hash_val +1; i < storageArray.length; i++){ //for items in the table after the hash value to the end. < not <= Storage array since  length not zero indexed, but the array is
-                if (storageArray[i] ==name){
-                    return true;
-                }
-                else if (storageArray[i] == null){ //no point continuing searching, since the value would have been added here if it was in the array
+               if (storageArray[i] == null){ //no point continuing searching, since the value would have been added here if it was in the array
                     return false;
                 }
+                else if (storageArray[i].equals(name)){
+                    return true;
+                }
+
             }
 
             for(int i = 0; i < hash_val; i++){//for items from the start of the table to the hash value.
-                if (storageArray[i] ==name){
-                    return true;
-                }
-                else if (storageArray[i] == null){//no point continuing searching, since the value would have been added here if it was in the array
+                if (storageArray[i] == null){//no point continuing searching, since the value would have been added here if it was in the array
                     return false;
                 }
+                else if (storageArray[i].equals(name)){
+                    return true;
+                }
+
             }
 
 

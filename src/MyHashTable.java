@@ -1,3 +1,5 @@
+//I don't think it was made clear in the question or lecture slides whether you should loop back to the start of the list when linear probing, I have assumed you should as this is the implementation I am familiar with.
+
 public class MyHashTable extends HashTable {
     /**
      * Hash function which takes the sum of ASCII values in a key, does modulo of the number of buckets and returns the result
@@ -42,7 +44,11 @@ public class MyHashTable extends HashTable {
     public boolean add(String name){
         boolean added = false;
         int hash_val = hashFunction(name);
+        if (search(name) == true){ //Cannot add a value to the hash table if it is already there
+            return false;
+        }
         if (storageArray[hash_val] == null){ //if location given by hash function is empty then we can add the name here
+
             storageArray[hash_val] = name;
             added = true;
         }
@@ -53,9 +59,7 @@ public class MyHashTable extends HashTable {
                     added = true;
                     break;
                 }
-                else if (storageArray[i] == name){ //Cannot add a value to the hash table if it is already there
-                    return false;
-                }
+
             }
             if (added == false){
                 for(int i = 0; i < hash_val; i++){ //going through the list from the start until we find an empty location of have checked all values
@@ -63,9 +67,6 @@ public class MyHashTable extends HashTable {
                         storageArray[i] = name;
                         added = true;
                         break;
-                    }
-                    else if (storageArray[i] == name){ //Cannot add a value to the hash table if it is already there
-                        return false;
                     }
                 }
 
@@ -164,20 +165,20 @@ public class MyHashTable extends HashTable {
             return true;
         }
         else{
-            for(int i = hash_val +1; i < storageArray.length; i++){
+            for(int i = hash_val +1; i < storageArray.length; i++){ //for items in the table after the hash value to the end. < not <= Storage array since  length not zero indexed, but the array is
                 if (storageArray[i] ==name){
                     return true;
                 }
-                else if (storageArray[i] == null){
+                else if (storageArray[i] == null){ //no point continuing searching, since the value would have been added here if it was in the array
                     return false;
                 }
             }
 
-            for(int i = 0; i < hash_val; i++){
+            for(int i = 0; i < hash_val; i++){//for items from the start of the table to the hash value.
                 if (storageArray[i] ==name){
                     return true;
                 }
-                else if (storageArray[i] == null){
+                else if (storageArray[i] == null){//no point continuing searching, since the value would have been added here if it was in the array
                     return false;
                 }
             }
@@ -187,5 +188,4 @@ public class MyHashTable extends HashTable {
 
         return false;
     }
-
 }

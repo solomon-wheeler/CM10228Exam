@@ -1,5 +1,4 @@
-// This is a blank file, please complete your solution here.
-public class myHashTable extends HashTable {
+public class MyHashTable extends HashTable {
 
     public int hashFunction (String key){
         int sum_of_values = 0;
@@ -12,6 +11,14 @@ public class myHashTable extends HashTable {
         return sum_of_values % buckets;
     }
     public void resizeMap(int newSize){
+        String[] tempArray = new String[storageArray.length];
+        tempArray =  storageArray.clone();
+        storageArray = new String[newSize];
+        for (int i = 0; i < tempArray.length; i++){
+            if (storageArray[i] !=null || storageArray[i] != getPlaceholder()){
+                add(storageArray[i]);
+            }
+        }
 
     }
     public boolean add(String name){
@@ -23,7 +30,7 @@ public class myHashTable extends HashTable {
         }
         else{
             for(int i = hash_val +1; i < storageArray.length; i++){
-                if (storageArray[i] ==null){
+                if (storageArray[i] ==null || storageArray[i] == getPlaceholder() ){
                     storageArray[i] = name;
                     added = true;
                     break;
@@ -34,7 +41,7 @@ public class myHashTable extends HashTable {
             }
             if (added == false){
                 for(int i = 0; i < hash_val; i++){
-                    if (storageArray[i] ==null){
+                    if (storageArray[i] ==null || storageArray[i] == getPlaceholder()){
                         storageArray[i] = name;
                         added = true;
                         break;
@@ -60,19 +67,27 @@ public class myHashTable extends HashTable {
 
     public void update_load(){
         loadFactor=  numItems /  storageArray.length; //check this is a float
+        if (loadFactor >= 0.7){
+            resizeMap(storageArray.length *2);
+        }
+        else if ( loadFactor <= 0.2  &&  storageArray.length > 19) //length of array is an integer, so if >19 dividing it by 2 will give a length >- 10. Only needed if we have a start length of storage array =! 10
+            resizeMap(storageArray.length / 2); //won't give a decimal result as we coerce to integer and floor
+        {
+
+        }
         //todo add thing to change length here
     }
     public boolean remove(String name){
         boolean removed = false;
         int hash_val = hashFunction(name);
         if (storageArray[hash_val] == name){
-            storageArray[hash_val] = null;
+            storageArray[hash_val] = getPlaceholder();
             removed = true;
         }
         else{
             for(int i = hash_val +1; i < storageArray.length; i++){
                 if (storageArray[i] ==name){
-                    storageArray[i] = null;
+                    storageArray[i] = getPlaceholder();
                     removed = true;
                     break;
                 }
@@ -83,7 +98,7 @@ public class myHashTable extends HashTable {
             if (removed  == false){
                 for(int i = 0; i < hash_val; i++){
                     if (storageArray[i] ==name){
-                        storageArray[i] = null;
+                        storageArray[i] = getPlaceholder();
                         removed = true;
                         break;
                     }

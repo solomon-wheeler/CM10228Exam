@@ -25,15 +25,13 @@ public class MyHashTable extends HashTable {
         String[] tempArray = new String[storageArray.length]; //have to store the array as a temp variable so when we create the new one it isn't overwritten
         tempArray =  storageArray.clone();
         storageArray = new String[newSize];
-
-        for (String this_value : tempArray){ //for each value in our original hash table < not <= temp array since length not zero indexed, but the array is
-            if (this_value !=null && this_value != getPlaceholder()){
+        for (String this_value : tempArray){ //for each value in our original hash table. < not <= temp array since length not zero indexed, but the array is
+            if (this_value !=null && !(this_value.equals(getPlaceholder()))){
                 if(add(this_value)){
                     numItems --;// we need to take away one from the number of items because we add one to this in the add() method. We cannot just reset the number of values because then when we add the values we may end up with a load factor < 0.2
                 }
             }
         }
-
     }
 
     /**
@@ -42,19 +40,22 @@ public class MyHashTable extends HashTable {
      * @return true if added/false otherwise
      */
     public boolean add(String name){
+        if (name == null){ //need to ensure user does not add null, as this will cause an error when we try to call methods on the string object
+            System.out.println("Cannot add a null value to the hash table");
+            return false;
+        }
         boolean added = false;
         int hash_val = hashFunction(name);
         if (search(name)){ //Cannot add a value to the hash table if it is already there
             return false;
         }
         if (storageArray[hash_val] == null){ //if location given by hash function is empty then we can add the name here
-
             storageArray[hash_val] = name;
             added = true;
         }
-        else{
+        else{ //if that location is not empty we have to use linear probing
             for(int i = hash_val +1; i < storageArray.length; i++){ //going through the list from the hash location until we find an empty location or reach the end. < not <= Storage array since  length not zero indexed, but the array is
-                if (storageArray[i] ==null || storageArray[i] == getPlaceholder() ){ // we can overwrite placeholders, they're just here so we can delete and don't have to move values
+                if (storageArray[i] ==null || storageArray[i].equals(getPlaceholder())){ // we can overwrite placeholders, they're just here so we can delete and don't have to move values
                     storageArray[i] = name;
                     added = true;
                     break;
@@ -63,7 +64,7 @@ public class MyHashTable extends HashTable {
             }
             if (!added){
                 for(int i = 0; i < hash_val; i++){ //going through the list from the start until we find an empty location of have checked all values
-                    if (storageArray[i] ==null || storageArray[i].equals(getPlaceholder())){ // we can overwrite placeholders, they're just here, so we can delete and don't have to move values
+                    if (storageArray[i] ==null || storageArray[i].equals(getPlaceholder())){ // we can overwrite placeholders, they're just here so we don't have to move values when we delete
                         storageArray[i] = name;
                         added = true;
                         break;
@@ -85,7 +86,7 @@ public class MyHashTable extends HashTable {
     }
 
     /**
-     * works out if we need to resize the hash table, and calls the function to do this if neccesasry
+     * works out if we need to resize the hash table, and calls the function to do this if necessary
      */
     public void resize(){
         if (loadFactor >= 0.7){ //if load factor is greater than 0.7 we double length of the list
@@ -112,6 +113,10 @@ public class MyHashTable extends HashTable {
      * @return true if removed, false otherwise
      */
     public boolean remove(String name){
+        if (name == null){ //need to ensure user does not add null, as this will cause an error when we try to call methods on the string object
+            System.out.println("Cannot add a null value to the hash table");
+            return false;
+        }
         boolean removed = false;
         int hash_val = hashFunction(name);
         if (storageArray[hash_val].equals(name)){
@@ -120,25 +125,27 @@ public class MyHashTable extends HashTable {
         }
         else{
             for(int i = hash_val +1; i < storageArray.length; i++){ //for items in the table after the hash value to the end. < not <= Storage array since  length not zero indexed, but the array is
-                if (storageArray[i].equals(name)){
+                if (storageArray[i] == null){ // no point continuing searching, since the value would have been added here if it was in the array
+                    return false;
+                }
+                else if (storageArray[i].equals(name)){
                     storageArray[i] = getPlaceholder();
                     removed = true;
                     break;
                 }
-                else if (storageArray[i] == null){ // no point continuing searching, since the value would have been added here if it was in the array
-                    return false;
-                }
+
             }
             if (!removed){
                 for(int i = 0; i < hash_val; i++){ //for items from the start of the table to the hash value.
-                    if (storageArray[i].equals(name)){
+                    if (storageArray[i] == null){ //no point continuing searching, since the value would have been added here if it was in the array
+                        return false;
+                    }
+                    else if (storageArray[i].equals(name)){
                         storageArray[i] = getPlaceholder();
                         removed = true;
                         break;
                     }
-                    else if (storageArray[i] == null){ //no point continuing searching, since the value would have been added here if it was in the array
-                        return false;
-                    }
+
                 }
 
             }
@@ -160,11 +167,15 @@ public class MyHashTable extends HashTable {
      * @return true if found, false otherwise
      */
     public boolean search(String name){
+        if (name == null){ //need to ensure user does not add null, as this will cause an error when we try to call methods on the string object
+            System.out.println("Cannot add a null value to the hash table");
+            return false;
+        }
         int hash_val = hashFunction(name);
         if (storageArray[hash_val] == null){ // we can return false if this value is empty, no point checking the hash table
             return false;
         }
-        if (storageArray[hash_val].equals(name)){
+        else if (storageArray[hash_val].equals(name)){
             return true;
         }
         else{
@@ -185,12 +196,8 @@ public class MyHashTable extends HashTable {
                 else if (storageArray[i].equals(name)){
                     return true;
                 }
-
             }
-
-
         }
-
         return false;
     }
 }

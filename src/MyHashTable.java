@@ -24,7 +24,7 @@ public class MyHashTable extends HashTable {
         tempArray =  storageArray.clone();
         storageArray = new String[newSize];
 
-        for (int i = 0; i < tempArray.length; i++){ //for each value in our original hash table
+        for (int i = 0; i < tempArray.length; i++){ //for each value in our original hash table < not <= temp array since length not zero indexed, but the array is
             if (tempArray[i] !=null && tempArray[i] != getPlaceholder()){
                 if(add(tempArray[i]) == true){
                     numItems --;// we need to take away one from the number of items because we add one to this in the add() method. We cannot just reset the number of values because then when we add the values we may end up with a load factor < 0.2
@@ -47,7 +47,7 @@ public class MyHashTable extends HashTable {
             added = true;
         }
         else{
-            for(int i = hash_val +1; i < storageArray.length; i++){ //going through the list from the hash location until we find an empty location or reach the end
+            for(int i = hash_val +1; i < storageArray.length; i++){ //going through the list from the hash location until we find an empty location or reach the end. < not <= Storage array since  length not zero indexed, but the array is
                 if (storageArray[i] ==null || storageArray[i] == getPlaceholder() ){ // we can overwrite placeholders, they're just here so we can delete and don't have to move values
                     storageArray[i] = name;
                     added = true;
@@ -101,13 +101,13 @@ public class MyHashTable extends HashTable {
      * Works out the load factor, and updates the class variable
      */
     public void update_load(){
-        loadFactor =  (double) numItems /  storageArray.length; //check this is a float
+        loadFactor =  (double) numItems /  storageArray.length; //need to cast this to a double to ensure there is no coercion since numItems is an integer
         resize();
     }
 
     /**
-     * remove's a value from the hash table if it exists, and replaces it with a placeholder
-     * @param name
+     * removes a value from the hash table if it exists, and replaces it with a placeholder
+     * @param name, the name to be removed from the hash table
      * @return true if removed, false otherwise
      */
     public boolean remove(String name){
@@ -118,24 +118,24 @@ public class MyHashTable extends HashTable {
             removed = true;
         }
         else{
-            for(int i = hash_val +1; i < storageArray.length; i++){
+            for(int i = hash_val +1; i < storageArray.length; i++){ //for items in the table after the hash value to the end. < not <= Storage array since  length not zero indexed, but the array is
                 if (storageArray[i] ==name){
                     storageArray[i] = getPlaceholder();
                     removed = true;
                     break;
                 }
-                else if (storageArray[i] == null){
+                else if (storageArray[i] == null){ // no point continuing searching, since the value would have been added here if it was in the array
                     return false;
                 }
             }
             if (removed  == false){
-                for(int i = 0; i < hash_val; i++){
+                for(int i = 0; i < hash_val; i++){ //for items from the start of the table to the hash value.
                     if (storageArray[i] ==name){
                         storageArray[i] = getPlaceholder();
                         removed = true;
                         break;
                     }
-                    else if (storageArray[i] == null){
+                    else if (storageArray[i] == null){ //no point continuing searching, since the value would have been added here if it was in the array
                         return false;
                     }
                 }
@@ -152,6 +152,12 @@ public class MyHashTable extends HashTable {
             return false;
         }
     }
+
+    /**
+     * Returns whether the value exists the hash table
+     * @param name
+     * @return true if found, false otherwise
+     */
     public boolean search(String name){
         int hash_val = hashFunction(name);
         if (storageArray[hash_val] == name){

@@ -14,9 +14,12 @@ public class MyHashTable extends HashTable {
         String[] tempArray = new String[storageArray.length];
         tempArray =  storageArray.clone();
         storageArray = new String[newSize];
+
         for (int i = 0; i < tempArray.length; i++){
-            if (storageArray[i] !=null || storageArray[i] != getPlaceholder()){
-                add(storageArray[i]);
+            if (tempArray[i] !=null && tempArray[i] != getPlaceholder()){
+                if(add(tempArray[i]) == true){
+                    numItems --;// we need to take away one from the number of items because we add one to this in the add() method. We cannot just reset the number of values because then when we add the values we may end up with a load factor < 0.2
+                }
             }
         }
 
@@ -64,18 +67,19 @@ public class MyHashTable extends HashTable {
             return false;
         }
     }
-
-    public void update_load(){
-        loadFactor=  numItems /  storageArray.length; //check this is a float
+    public void resize(){
         if (loadFactor >= 0.7){
             resizeMap(storageArray.length *2);
+            update_load();
         }
-        else if ( loadFactor <= 0.2  &&  storageArray.length > 19) //length of array is an integer, so if >19 dividing it by 2 will give a length >- 10. Only needed if we have a start length of storage array =! 10
+        else if ( loadFactor <= 0.2  &&  storageArray.length > 19) { //length of array is an integer, so if >19 dividing it by 2 will give a length >- 10. Only needed if we have a start length of storage array =! 10
             resizeMap(storageArray.length / 2); //won't give a decimal result as we coerce to integer and floor
-        {
-
+            update_load();
         }
-        //todo add thing to change length here
+    }
+    public void update_load(){
+        loadFactor =  (double) numItems /  storageArray.length; //check this is a float
+        resize();
     }
     public boolean remove(String name){
         boolean removed = false;

@@ -1,21 +1,30 @@
 public class MyHashTable extends HashTable {
-
+    /**
+     * Hash function which takes the sum of ASCII values in a key, does modulo of the number of buckets and returns the result
+     * @param key they key for the hash function
+     * @return hashvalue
+     */
     public int hashFunction (String key){
         int sum_of_values = 0;
         int this_value;
-        for(int i =0; i < key.length();i++){
+        for(int i =0; i < key.length();i++){ //for each Character in our string
             this_value = key.charAt(i);
             sum_of_values = sum_of_values + this_value;
         }
         int buckets = storageArray.length;
         return sum_of_values % buckets;
     }
+
+    /**
+     * Takes a new size of the map and resizes the hash table accordingly, then re-adds values from the hash table
+     * @param newSize the size of the new map
+     */
     public void resizeMap(int newSize){
-        String[] tempArray = new String[storageArray.length];
+        String[] tempArray = new String[storageArray.length]; //have to store the array as a temp variable so when we create the new one it isn't overwritten
         tempArray =  storageArray.clone();
         storageArray = new String[newSize];
 
-        for (int i = 0; i < tempArray.length; i++){
+        for (int i = 0; i < tempArray.length; i++){ //for each value in our original hash table
             if (tempArray[i] !=null && tempArray[i] != getPlaceholder()){
                 if(add(tempArray[i]) == true){
                     numItems --;// we need to take away one from the number of items because we add one to this in the add() method. We cannot just reset the number of values because then when we add the values we may end up with a load factor < 0.2
@@ -24,32 +33,38 @@ public class MyHashTable extends HashTable {
         }
 
     }
+
+    /**
+     * Adds a value to our hash table
+     * @param name name to be added to the hash table
+     * @return true if added/false otherwise
+     */
     public boolean add(String name){
         boolean added = false;
         int hash_val = hashFunction(name);
-        if (storageArray[hash_val] == null){
+        if (storageArray[hash_val] == null){ //if location given by hash function is empty then we can add the name here
             storageArray[hash_val] = name;
             added = true;
         }
         else{
-            for(int i = hash_val +1; i < storageArray.length; i++){
-                if (storageArray[i] ==null || storageArray[i] == getPlaceholder() ){
+            for(int i = hash_val +1; i < storageArray.length; i++){ //going through the list from the hash location until we find an empty location or reach the end
+                if (storageArray[i] ==null || storageArray[i] == getPlaceholder() ){ // we can overwrite placeholders, they're just here so we can delete and don't have to move values
                     storageArray[i] = name;
                     added = true;
                     break;
                 }
-                else if (storageArray[i] == name){
+                else if (storageArray[i] == name){ //Cannot add a value to the hash table if it is already there
                     return false;
                 }
             }
             if (added == false){
-                for(int i = 0; i < hash_val; i++){
-                    if (storageArray[i] ==null || storageArray[i] == getPlaceholder()){
+                for(int i = 0; i < hash_val; i++){ //going through the list from the start until we find an empty location of have checked all values
+                    if (storageArray[i] ==null || storageArray[i] == getPlaceholder()){ // we can overwrite placeholders, they're just here, so we can delete and don't have to move values
                         storageArray[i] = name;
                         added = true;
                         break;
                     }
-                    else if (storageArray[i] == name){
+                    else if (storageArray[i] == name){ //Cannot add a value to the hash table if it is already there
                         return false;
                     }
                 }
@@ -67,8 +82,12 @@ public class MyHashTable extends HashTable {
             return false;
         }
     }
+
+    /**
+     * works out if we need to resize the hash table, and calls the function to do this if neccesasry
+     */
     public void resize(){
-        if (loadFactor >= 0.7){
+        if (loadFactor >= 0.7){ //if load factor is greater than 0.7 we double length of the list
             resizeMap(storageArray.length *2);
             update_load();
         }
@@ -77,10 +96,20 @@ public class MyHashTable extends HashTable {
             update_load();
         }
     }
+
+    /**
+     * Works out the load factor, and updates the class variable
+     */
     public void update_load(){
         loadFactor =  (double) numItems /  storageArray.length; //check this is a float
         resize();
     }
+
+    /**
+     * remove's a value from the hash table if it exists, and replaces it with a placeholder
+     * @param name
+     * @return true if removed, false otherwise
+     */
     public boolean remove(String name){
         boolean removed = false;
         int hash_val = hashFunction(name);
